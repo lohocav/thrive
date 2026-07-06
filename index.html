@@ -1,0 +1,865 @@
+<title>Thrive</title>
+<style>
+:root{
+  --bg:#F6F4EE; --card:#FFFFFF; --ink:#2C332E; --muted:#6E7568; --faint:#9AA093;
+  --line:#E5E2D6; --pine:#33635C; --pine-deep:#24473F; --pine-soft:#E3EDE8;
+  --gold:#C6952E; --gold-deep:#8A6516; --gold-soft:#F6EDD9;
+  --sky:#5E87AC; --sky-deep:#3D5F80; --sky-soft:#E4EDF4;
+  --rose:#B3564D; --rose-soft:#F5E6E4;
+  --serif:'Palatino','Iowan Old Style','Palatino Linotype',Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5}
+#app{max-width:480px;margin:0 auto;padding:20px 16px 96px}
+h1,h2,h3{font-weight:500}
+.serif{font-family:var(--serif)}
+.num{font-variant-numeric:tabular-nums}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h3{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;font-weight:600}
+button{font-family:var(--sans);font-size:15px;cursor:pointer;border:none;background:none;color:inherit}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
+.btn{display:inline-block;padding:10px 18px;border-radius:10px;background:var(--pine);color:#fff;font-weight:500}
+.btn.ghost{background:var(--pine-soft);color:var(--pine-deep)}
+.btn.gold{background:var(--gold-soft);color:var(--gold-deep)}
+.btn.sky{background:var(--sky-soft);color:var(--sky-deep)}
+.btn.small{padding:6px 12px;font-size:13px;border-radius:8px}
+input[type=text],input[type=number],textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:var(--sans);font-size:16px;background:#FDFCF9;color:var(--ink)}
+textarea{min-height:72px;resize:vertical}
+label.fl{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+.row{display:flex;gap:10px;align-items:center}
+.grow{flex:1}
+.habit{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line)}
+.habit:last-child{border-bottom:none}
+.habit .lbl{flex:1;font-size:15px}
+.habit .sub{font-size:12px;color:var(--faint);display:block}
+.tick{width:28px;height:28px;min-width:28px;border-radius:9px;border:1.5px solid var(--line);background:#FDFCF9;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.tick.on{background:var(--pine);border-color:var(--pine)}
+.tick svg{opacity:0;transition:opacity .15s}
+.tick.on svg{opacity:1}
+.done .lbl{color:var(--faint)}
+.counter{display:flex;align-items:center;gap:14px}
+.cbtn{width:36px;height:36px;border-radius:10px;background:var(--pine-soft);color:var(--pine-deep);font-size:20px;font-weight:500;display:flex;align-items:center;justify-content:center}
+.dots{display:flex;gap:5px;flex-wrap:wrap}
+.dot{width:13px;height:13px;border-radius:50%;background:var(--line)}
+.dot.on{background:var(--pine)}
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.bar>div{height:100%;border-radius:5px;background:var(--pine)}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+.tabs-inner{display:flex;width:100%;max-width:480px}
+.tab{flex:1;padding:11px 0 9px;text-align:center;font-size:12px;color:var(--faint);display:flex;flex-direction:column;align-items:center;gap:3px}
+.tab.on{color:var(--pine-deep);font-weight:600}
+.tab svg{display:block}
+.pill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:99px;font-weight:600}
+.pill.pine{background:var(--pine-soft);color:var(--pine-deep)}
+.pill.gold{background:var(--gold-soft);color:var(--gold-deep)}
+.pill.sky{background:var(--sky-soft);color:var(--sky-deep)}
+.banner{border-radius:14px;padding:14px 16px;margin-bottom:14px;font-size:14px;line-height:1.45}
+.banner.gold{background:var(--gold-soft);color:var(--gold-deep)}
+.banner.sky{background:var(--sky-soft);color:var(--sky-deep)}
+.banner.pine{background:var(--pine-soft);color:var(--pine-deep)}
+.statgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 8px;text-align:center}
+.stat .v{font-family:var(--serif);font-size:24px;line-height:1.1}
+.stat .k{font-size:11px;color:var(--muted);margin-top:3px}
+.overlay{position:fixed;inset:0;background:rgba(44,51,46,.45);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal{background:var(--card);border-radius:18px;padding:24px 20px;max-width:420px;width:100%;max-height:85vh;overflow-y:auto}
+.hero-num{font-family:var(--serif);font-size:40px;line-height:1}
+.muted{color:var(--muted);font-size:14px}
+.tiny{color:var(--faint);font-size:12px}
+.winitem{padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.winitem:last-child{border:none}
+.chartwrap{overflow-x:auto}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{padding:8px 14px;border-radius:99px;background:#FDFCF9;border:1.5px solid var(--line);font-size:14px}
+.seg button.on{background:var(--pine-soft);border-color:var(--pine);color:var(--pine-deep);font-weight:600}
+.ringwrap{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:200}
+.confetti i{position:absolute;width:8px;height:8px;border-radius:2px;animation:fall 1.6s ease-in forwards}
+@keyframes fall{from{transform:translateY(-10vh) rotate(0)}to{transform:translateY(105vh) rotate(540deg);opacity:.2}}
+@media (prefers-reduced-motion:reduce){.confetti i{animation:none;display:none}.tick,.tick svg{transition:none}}
+a{color:var(--pine-deep)}
+</style>
+<div id="app" aria-live="polite"></div>
+<div class="tabs" id="tabbar"></div>
+<div id="modalroot"></div>
+<script>
+'use strict';
+/* ---------- state ---------- */
+const KEY='thrive_v1';
+const HABITS=[
+ {id:'up_early',label:'Up before the kids',sub:'a quiet moment before the day starts',part:'morning'},
+ {id:'ready',label:'Hair done, dressed to feel good',sub:'understated confidence',part:'morning'},
+ {id:'kids_am',label:'Kids out the door on time',sub:'no panicked rushing',part:'morning',wk:true},
+ {id:'needle',label:'Needle-mover done',sub:'',part:'work',special:'needle'},
+ {id:'water',label:'Water',part:'body',special:'water'},
+ {id:'steps',label:'Steps',part:'body',special:'steps'},
+ {id:'move',label:'Moved my body',sub:'a walk, a workout, anything counts',part:'body'},
+ {id:'home_food',label:'Ate home food, didn’t order out',sub:'good for the body and the budget',part:'home'},
+ {id:'homework',label:'Homework done in the window',sub:'same time, same spot, no negotiation',part:'home',wk:true},
+ {id:'family_time',label:'Relaxed family time',sub:'even 15 minutes counts',part:'home'},
+ {id:'reset',label:'10-minute evening reset',sub:'tidy + set up tomorrow morning',part:'home'},
+ {id:'kids_bed',label:'Kids in bed on time',sub:'their routine runs the show',part:'evening'},
+ {id:'no_late',label:'Kitchen closed after dinner',sub:'no late-night eating',part:'evening'},
+ {id:'screens',label:'Screens down, no doomscroll',sub:'',part:'evening'},
+ {id:'read',label:'Wind-down reading',sub:'',part:'evening'},
+ {id:'bed',label:'Bed on time',sub:'',part:'evening'}
+];
+const PARTS={morning:'Morning',work:'Work',body:'Body',home:'Family & home',evening:'Evening'};
+const CORE=['water','steps','needle'];
+const RAMP=['water','steps','needle','no_late','bed'];
+/* quests: one-time guided steps that teach the skill, then unlock the daily habit */
+const PATHS=[
+ {id:'look',title:'Look & feel',tag:'from “I don’t know how” to a 15-minute routine',quests:[
+  {id:'season',title:'Find your color season',why:'Knowing your colors makes every clothing decision easier — and cheaper.',how:'Run the prompt below with Claude (share a couple of photos), or mark done if you already know it. Save your season and best colors here.',prompt:'Look at these photos of me and help me figure out my color season (spring / summer / autumn / winter). Then give me a palette of 8 wardrobe colors that flatter me and 3 to avoid, aimed at a professional, understated-confidence look.',ask:'Your season + best colors'},
+  {id:'closet',title:'20-minute closet triage',why:'Confidence starts with clothes that fit the body you have today — not the someday body.',how:'Set a 20-minute timer. Pull the 5 items that fit right now and feel most like understated confidence. Move them front and center. That’s it — no purging today.'},
+  {id:'uniforms',title:'Define 3 work uniforms',why:'Deciding once beats deciding every morning — this is ADHD gold.',how:'Using your triage picks, write 3 repeatable combos (top + bottom + shoes). These become your default; no more staring at the closet.',prompt:'Help me build 3 repeatable work-from-home “uniforms” that look polished on video calls but feel comfortable — understated confidence. My best colors are [paste your season]. Build combos from basics most women already own, and tell me the 2–3 gaps worth buying.',ask:'Your 3 uniforms',unlocks:'ready'},
+  {id:'hair',title:'Pick a 10-minute default hairstyle',why:'A default style removes the morning decision entirely.',how:'One everyday style you can do in 10 minutes, plus a 2-minute backup for chaos mornings.',prompt:'Give me 3 easy 10-minute hairstyle routines for [your hair type and length] that look polished on video calls, plus one 2-minute backup for rushed mornings. Include the exact steps and any tools worth having.',ask:'Default style + backup'},
+  {id:'skin',title:'Set a 3-step skincare routine',why:'Simple and done daily beats a 9-step shelf you skip.',how:'AM: cleanse, moisturize, SPF. PM: cleanse, moisturize. Keep it next to your toothbrush so it rides an existing habit.',prompt:'Build me a simple, budget-friendly 3-step AM and PM skincare routine for [your skin type], for someone who will absolutely skip anything complicated. Name specific affordable products.'}
+ ]},
+ {id:'home',title:'A home on rails',tag:'calm mornings are built the night before',quests:[
+  {id:'rotation',title:'Build a 5-dinner rotation',why:'Dinner stress at 5pm is a decision problem, not a cooking problem. Decide once.',how:'Five easy, nutritious dinners your kids and husband will actually eat, on repeat weekly. Boring is the feature.',prompt:'Help me build a 5-dinner weekly rotation for a family with kids: nutritious, 30 minutes or less, low-chaos to cook while overstimulated, and genuinely kid-approved. Include a combined grocery list.',ask:'Your 5 dinners',unlocks:'home_food'},
+  {id:'staples',title:'Make the staples grocery list',why:'One reusable list = no more blank-brain at the store, fewer takeout nights.',prompt:'Turn my 5-dinner rotation [paste it] plus easy school breakfasts and lunchbox items into one master grocery list I can reuse every week, organized by store section.'},
+  {id:'reset_list',title:'Write your 10-minute evening reset',why:'Tomorrow’s calm morning is a checklist, not a personality trait.',how:'3–5 items max — e.g. kitchen counters clear, launch pad loaded, your outfit out, coffee set. Write yours here.',ask:'Your reset checklist',unlocks:'reset'}
+ ]},
+ {id:'family',title:'Kids on rails',tag:'you’re teaching them the habits you weren’t taught',quests:[
+  {id:'launchpad',title:'Set up a launch pad by the door',why:'On-time school mornings are made the night before, in one spot.',how:'One hook or bin per kid: backpack, shoes, signed forms, jackets. Loaded at evening reset, grabbed on the way out.'},
+  {id:'breakfast',title:'Prep-once breakfast station',why:'Kids who can serve themselves = a mom who gets her quiet moment.',how:'One low shelf or bin with grab-able nutritious options the kids can reach without you.'},
+  {id:'kids_am_routine',title:'Make the kids’ morning chart',why:'Kids follow a chart on the wall better than a mom repeating herself.',how:'List their 4–5 steps in order (dressed, breakfast, teeth, shoes, backpack). Make it visual, hang it where they eat. They check the chart — not you.',prompt:'Help me create a simple visual morning-routine chart for my kids (ages [ages]) so school mornings run without nagging: the right steps in the right order, how to make it visual for their ages, and how to introduce it so they actually use it.',ask:'Their morning steps',unlocks:'kids_am'},
+  {id:'homework_plan',title:'Design the homework routine',why:'A fixed time and place ends the daily negotiation before it starts.',how:'Pick the anchor (e.g. right after snack), the spot, and what “done” earns. Same every school day.',prompt:'Help me build an after-school homework routine for my kids (ages [ages]): the best timing around snack and downtime, how to handle resistance without daily battles, and how to keep it consistent while I’m finishing my own remote workday at the same time.',ask:'When + where + the rule',unlocks:'homework'},
+  {id:'kids_bed_routine',title:'Set the kids’ bedtime routine',why:'Kids asleep on time is how your own wind-down exists at all.',how:'Fixed time, fixed order — bath, PJs, books, lights. Boring and identical every night is the magic.',prompt:'Help me design a calm, consistent bedtime routine for my kids (ages [ages]) ending with lights out at [time], including how to transition out of family time without meltdowns.',ask:'Bedtime + the sequence',unlocks:'kids_bed'},
+  {id:'family_ritual',title:'Pick one daily connection ritual',why:'The habits you’re teaching them are the point — this is the one they’ll remember.',how:'One small daily anchor: a dinner-table question, 15 minutes of a game, reading together after homework. Pick it and write it here.',ask:'Your ritual',unlocks:'family_time'}
+ ]},
+ {id:'body',title:'A body with energy',tag:'attach new habits to anchors that already exist',quests:[
+  {id:'walk_slots',title:'Pick your 2 daily walk slots',why:'Steps happen when they’re attached to something that already happens.',how:'Two anchors, e.g. right after school drop-off and during your first afternoon call. Write them here — they’re appointments now.',ask:'Your 2 slots',unlocks:'move'},
+  {id:'bottle',title:'Give water a home',why:'You don’t drink more water by trying harder — you do it by making it ambient.',how:'One big bottle, filled the night before (add it to your reset), living on your desk.'},
+  {id:'kitchen_ritual',title:'Design the kitchen-closed ritual',why:'Late-night eating is a punctuation mark on the day. Give the day a different one.',how:'A short ritual that means “done”: herbal tea, teeth brushed early, kitchen light off. Write yours.',prompt:'Help me design a gentle evening ritual to stop late-night binge eating — not through willpower, but by replacing the “end of day” signal that food currently provides. I’m an overstimulated working mom; keep it to 3 steps.',ask:'Your ritual',unlocks:'no_late_plus'},
+  {id:'winddown',title:'Design your wind-down + bedtime',why:'Waking before the kids is decided the night before, by a bedtime.',how:'Pick the lights-out time that gives you a real night’s sleep before your wake-up. Then 2–3 wind-down steps: phone parked outside the bedroom, book on the pillow.',ask:'Bedtime + wind-down steps',unlocks:'winddown_set'}
+ ]},
+ {id:'money',title:'Money that behaves',tag:'automate the plan so willpower isn’t the plan',quests:[
+  {id:'audit',title:'Subscription + spending audit',why:'Finding the leaks is a one-time job with a permanent payoff.',prompt:'Walk me through auditing my last 2 months of credit card and bank statements: help me categorize spending, spot subscriptions to cancel, and identify my top 3 “emotional spend” patterns — no judgment, just data.'},
+  {id:'autosave',title:'Automate savings on payday',why:'Money that moves itself doesn’t need you to be disciplined.',how:'One automatic transfer to savings the morning of payday — an amount that doesn’t hurt. You can raise it later. Write the amount here.',ask:'Auto-transfer amount + day'},
+  {id:'ccplan',title:'Set the card payoff plan',why:'A $12k balance shrinks on a schedule, not on vibes.',prompt:'Help me build a payoff plan for a $12,000 credit card balance at [your APR]. Compare paying it aggressively vs. balance transfer options, give me a monthly payment that gets it to zero within 12–18 months, and tell me exactly what autopay to set up.',ask:'Your monthly payment'},
+  {id:'control_ritual',title:'Pick your feel-in-control ritual',why:'You spend to feel safe and in control. The urge is valid — the purchase is just the wrong tool.',how:'Choose one free 5-minute move for that moment: check your money bars in this app, tidy one surface, step outside, 10 slow breaths. Write it here so the urge button has a destination.',ask:'Your ritual'}
+ ]},
+ {id:'career',title:'The promotion',tag:'the case builds itself if you log it',quests:[
+  {id:'case_doc',title:'Start your case doc',why:'The promotion conversation goes better when the evidence walks in with you.',prompt:'Help me draft the skeleton of a business case for converting my interim [your role] to permanent: the sections to include, the metrics that matter most, and 5 questions I should be able to answer before the conversation. I have 2 quarters.',unlocks:null},
+  {id:'one_on_one',title:'Get a recurring 1:1 with the decision-maker',why:'Visibility is a calendar event, not a hope.',how:'Book a recurring 30 minutes with whoever decides on the permanent role. Bring one win and one strategic question each time.'},
+  {id:'visibility',title:'Pick 3 visibility moves this quarter',why:'Needle-moving work that nobody sees doesn’t move your needle.',how:'E.g. present the growth plan to leadership, publish a monthly metrics memo, own one cross-team initiative. Write your 3.',ask:'Your 3 moves'}
+ ]}
+];
+const LOCKS={ready:'uniforms',move:'walk_slots',home_food:'rotation',reset:'reset_list',screens:'winddown',read:'winddown',bed:'winddown',kids_am:'kids_am_routine',homework:'homework_plan',kids_bed:'kids_bed_routine',family_time:'family_ritual'};
+const ANSWER_SUB={ready:'uniforms',home_food:'rotation',reset:'reset_list',move:'walk_slots',no_late:'kitchen_ritual',bed:'winddown',kids_am:'kids_am_routine',homework:'homework_plan',kids_bed:'kids_bed_routine',family_time:'family_ritual'};
+const RITZ_SEED=['Amelia Island, FL','Atlanta, GA','Bacara, Santa Barbara, CA','Bachelor Gulch, CO','Boston, MA','Charlotte, NC','Chicago, IL','Dallas, TX','Dallas Las Colinas, TX','Dove Mountain, AZ','Fort Lauderdale, FL','Half Moon Bay, CA','Kapalua, Maui, HI','Key Biscayne, FL','Laguna Niguel, CA','Lake Oconee, GA','Lake Tahoe, CA','Los Angeles, CA','Marina del Rey, CA','Naples, FL','Naples Tiburón, FL','New Orleans, LA','New York Central Park, NY','New York NoMad, NY','Orlando Grande Lakes, FL','Paradise Valley, AZ','Pentagon City, VA','Philadelphia, PA','Portland, OR','Rancho Mirage, CA','San Francisco, CA','Sarasota, FL','South Beach, FL','St. Louis, MO','St. Thomas, USVI','Turtle Bay, Oahu, HI','Tysons Corner, VA','Washington D.C.','Washington D.C. Georgetown'];
+function questById(id){for(const p of PATHS)for(const q of p.quests)if(q.id===id)return q;return null;}
+function qDone(id){return !!(S.quests&&S.quests.done[id]);}
+function qAnswer(id){return S.quests&&S.quests.answers[id]||'';}
+let S=load();
+let tab='today';
+let viewOffset=0;
+
+function load(){
+  try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);
+    if(!d.quests)d.quests={done:{},answers:{}};
+    if(!d.lastPath)d.lastPath='look';
+    if(!d.trip)d.trip={start:d.profile&&d.profile.start||todayKey(),target:100,history:[]};
+    if(!d.ritz)d.ritz=RITZ_SEED.map(n=>({name:n,st:0}));
+    return d;}}catch(e){}
+  return null;
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(S));}
+function freshState(o){
+  return {
+    profile:{name:o.name||'friend',start:todayKey(),weightStart:o.weight,weightGoal:o.weight?o.weight-25:null,
+      stepsBase:o.steps||3000,stepsTarget:Math.min(10000,(o.steps||3000)+1000),waterTarget:8,
+      ccStart:o.cc,savStart:o.sav,savGoal:o.savGoal,kitGoal:o.kitGoal,kitStart:o.kit||0,pace:3,
+      why:'',vision:''},
+    disabled:{},days:{},weighins:o.weight?[{d:todayKey(),lbs:o.weight}]:[],
+    money:[{d:todayKey(),cc:o.cc,sav:o.sav,kit:o.kit||0}],
+    wins:[],urges:[],parked:[],comebacks:0,surfed:0,lastSeen:todayKey(),celebrated:{},
+    quests:{done:{},answers:{}},lastPath:'look',
+    trip:{start:todayKey(),target:100,history:[]},ritz:RITZ_SEED.map(n=>({name:n,st:0}))
+  };
+}
+/* ---------- dates (day rolls over at 4am) ---------- */
+function keyFor(dt){const d=new Date(dt.getTime()-4*3600*1000);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function todayKey(){return keyFor(new Date());}
+function shiftKey(k,n){const p=k.split('-');const d=new Date(+p[0],+p[1]-1,+p[2]);d.setDate(d.getDate()+n);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtKey(k){const p=k.split('-');const d=new Date(+p[0],+p[1]-1,+p[2]);
+  return d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});}
+function daysBetween(a,b){const pa=a.split('-'),pb=b.split('-');
+  return Math.round((new Date(+pb[0],+pb[1]-1,+pb[2])-new Date(+pa[0],+pa[1]-1,+pa[2]))/86400000);}
+/* ---------- day helpers ---------- */
+function day(k){if(!S.days[k])S.days[k]={done:{},water:0,steps:0,needleText:'',mode:'full',touched:false};return S.days[k];}
+function unlocked(id){return !LOCKS[id]||qDone(LOCKS[id]);}
+function isWeekend(k){const p=k.split('-');const dw=new Date(+p[0],+p[1]-1,+p[2]).getDay();return dw===0||dw===6;}
+function activeHabits(){return HABITS.filter(h=>!S.disabled[h.id]&&unlocked(h.id));}
+function daySet(k){const d=day(k);const wkOK=h=>!(h.wk&&isWeekend(k));
+  if(d.mode==='curveball')return HABITS.filter(h=>CORE.includes(h.id));
+  if(d.mode==='ramp')return HABITS.filter(h=>((RAMP.includes(h.id)&&!S.disabled[h.id]&&unlocked(h.id))||CORE.includes(h.id))&&wkOK(h));
+  return activeHabits().filter(wkOK);}
+function targets(k){const d=day(k);const p=S.profile;
+  if(d.mode==='curveball')return{water:Math.ceil(p.waterTarget/2),steps:Math.min(4000,Math.ceil(p.stepsTarget/2))};
+  if(d.mode==='ramp')return{water:Math.ceil(p.waterTarget*0.75),steps:Math.ceil(p.stepsTarget*0.75)};
+  return{water:p.waterTarget,steps:p.stepsTarget};}
+function habitDone(k,h){const d=day(k);const t=targets(k);
+  if(h.id==='water')return d.water>=t.water;
+  if(h.id==='steps')return d.steps>=t.steps;
+  return !!d.done[h.id];}
+function dayScore(k){const set=daySet(k);if(!set.length)return 0;
+  return set.filter(h=>habitDone(k,h)).length/set.length;}
+function touched(k){const d=S.days[k];if(!d)return false;
+  return d.touched||d.water>0||d.steps>0||Object.values(d.done).some(Boolean);}
+/* ---------- streak ---------- */
+function streakInfo(){
+  const t=todayKey();let cur=0,bends=0,k=t;
+  if(!touched(k))k=shiftKey(k,-1); /* today not logged yet doesn't break */
+  while(true){
+    if(touched(k)){cur++;k=shiftKey(k,-1);}
+    else{
+      const prev=shiftKey(k,-1);
+      if(touched(prev)&&bends<3&&cur>0){bends++;k=prev;} /* bend over a single missed day */
+      else break;
+    }
+    if(cur>3660)break;
+  }
+  let best=cur,run=0,bb=0;
+  const keys=Object.keys(S.days).filter(touched).sort();
+  if(keys.length){let prev=null;
+    for(const kk of keys){
+      if(prev===null)run=1;
+      else{const gap=daysBetween(prev,kk);
+        if(gap===1)run++;
+        else if(gap===2&&bb<3){bb++;run++;}
+        else{run=1;bb=0;}}
+      if(run>best)best=run;prev=kk;}}
+  return{cur,best,bends};
+}
+function perfectDays(){return Object.keys(S.days).filter(k=>daySet(k).length>=3&&dayScore(k)===1).length;}
+function greenDays(n){const t=todayKey();let c=0;
+  for(let i=0;i<n;i++){const k=shiftKey(t,-i);if(touched(k)&&dayScore(k)>=0.7)c++;}return c;}
+/* ---------- render ---------- */
+const app=document.getElementById('app');
+const tabbar=document.getElementById('tabbar');
+const modalroot=document.getElementById('modalroot');
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function render(){
+  if(!S){renderOnboard();tabbar.innerHTML='';return;}
+  checkReentry();
+  if(tab==='today')renderToday();
+  else if(tab==='paths')renderPaths();
+  else if(tab==='progress')renderProgress();
+  else if(tab==='week')renderWeek();
+  else renderPlan();
+  renderTabs();
+  save();
+}
+const ICONS={
+ today:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>',
+ paths:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20c0-6 4-8 8-8s8-2 8-8"/><circle cx="4" cy="20" r="1.6"/><circle cx="20" cy="4" r="1.6"/><circle cx="12" cy="12" r="1.6"/></svg>',
+ progress:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+ week:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+ plan:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>'};
+function renderTabs(){
+  tabbar.innerHTML='<div class="tabs-inner">'+[['today','Today'],['paths','Paths'],['progress','Progress'],['week','Week'],['plan','Plan']]
+   .map(t=>'<button class="tab '+(tab===t[0]?'on':'')+'" onclick="go(\''+t[0]+'\')" aria-label="'+t[1]+'">'+ICONS[t[0]]+t[1]+'</button>').join('')+'</div>';
+}
+window.go=t=>{tab=t;viewOffset=0;window.scrollTo(0,0);render();};
+/* ---------- onboarding ---------- */
+function renderOnboard(){
+  app.innerHTML=
+  '<div style="padding:28px 4px">'+
+  '<div class="serif" style="font-size:34px;margin-bottom:6px">Thrive</div>'+
+  '<p class="muted" style="margin-bottom:22px">From surviving to thriving. A few starting numbers — this is a baseline, not a judgment. Everything stays on this device.</p>'+
+  '<div class="card">'+
+  '<label class="fl">Your first name</label><input id="ob_n" type="text" placeholder="what should I call you?">'+
+  '<label class="fl">Current weight (lbs)</label><input id="ob_w" type="number" inputmode="decimal" placeholder="e.g. 180">'+
+  '<label class="fl">Roughly how many steps a day lately?</label><input id="ob_s" type="number" inputmode="numeric" placeholder="e.g. 3000">'+
+  '<label class="fl">Credit card balance ($)</label><input id="ob_cc" type="number" inputmode="numeric" value="12000">'+
+  '<label class="fl">Savings today ($)</label><input id="ob_sv" type="number" inputmode="numeric" value="10000">'+
+  '<label class="fl">Savings goal ($)</label><input id="ob_sg" type="number" inputmode="numeric" value="30000">'+
+  '<label class="fl">Kitchen renovation goal ($)</label><input id="ob_kg" type="number" inputmode="numeric" placeholder="e.g. 25000">'+
+  '<label class="fl">Saved toward kitchen so far ($)</label><input id="ob_k" type="number" inputmode="numeric" value="0">'+
+  '<div style="margin-top:18px"><button class="btn" style="width:100%;padding:13px" onclick="finishOnboard()">Start thriving</button></div>'+
+  '</div>'+
+  '<p class="tiny">You can change any of this later in Plan.</p></div>';
+}
+window.finishOnboard=()=>{
+  const g=id=>{const v=parseFloat(document.getElementById(id).value);return isNaN(v)?null:v;};
+  S=freshState({name:document.getElementById('ob_n').value.trim(),weight:g('ob_w'),steps:g('ob_s'),cc:g('ob_cc')??12000,sav:g('ob_sv')??10000,
+    savGoal:g('ob_sg')??30000,kitGoal:g('ob_kg'),kit:g('ob_k')??0});
+  save();render();
+};
+/* ---------- re-entry ---------- */
+function checkReentry(){
+  const t=todayKey();
+  if(S.lastSeen&&daysBetween(S.lastSeen,t)<2)S._reentryShown=false;
+  if(S.lastSeen&&daysBetween(S.lastSeen,t)>=2&&!S._reentryShown){
+    S._reentryShown=true;S.comebacks++;
+    const gap=daysBetween(S.lastSeen,t);
+    openModal(
+      '<div class="serif" style="font-size:26px;margin-bottom:10px">Welcome back.</div>'+
+      '<p style="margin-bottom:10px">Life happened for '+gap+' days. That’s not failure — that’s life. Coming back is the whole game, and you just did it. <b>Comeback #'+S.comebacks+'.</b></p>'+
+      '<p class="muted" style="margin-bottom:18px">Want to re-enter gently? A minimum day is just water, some steps, and one small thing.</p>'+
+      '<div class="row"><button class="btn sky grow" onclick="reenter(\'curveball\')">Minimum day</button>'+
+      '<button class="btn grow" onclick="reenter(\'full\')">Full day, let’s go</button></div>');
+  }
+  S.lastSeen=t;
+}
+window.reenter=m=>{day(todayKey()).mode=m==='curveball'?'curveball':'full';day(todayKey()).touched=true;closeModal();render();};
+/* ---------- today ---------- */
+function greet(){const h=new Date().getHours();
+  return h<5?'Still up? Be gentle with tomorrow-you':h<12?'Good morning':h<17?'Good afternoon':'Good evening';}
+function paceHint(k){
+  if(k!==todayKey())return'';
+  const h=new Date().getHours()+new Date().getMinutes()/60;
+  if(h<9||h>21)return'';
+  const t=targets(k);const frac=Math.min(1,(h-8)/13);
+  const w=Math.round(t.water*frac),st=Math.round(t.steps*frac/500)*500;
+  const d=day(k);const behind=[];
+  if(d.water<w-1)behind.push('water');
+  if(d.steps<st-1000)behind.push('steps');
+  const msg='By now, roughly '+w+' glasses · '+st.toLocaleString()+' steps keeps you on pace.';
+  return '<p class="tiny" style="margin:2px 0 12px">'+(behind.length?'⚠︎ '+msg+' A 10-minute walk or a glass of water gets you right back on it.':msg)+'</p>';
+}
+function ring(pct){const r=26,c=2*Math.PI*r;
+  return '<svg width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="'+Math.round(pct*100)+'% of today">'+
+  '<circle cx="32" cy="32" r="'+r+'" fill="none" stroke="var(--line)" stroke-width="7"/>'+
+  '<circle cx="32" cy="32" r="'+r+'" fill="none" stroke="'+(pct>=1?'var(--gold)':'var(--pine)')+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+c*(1-pct)+'" transform="rotate(-90 32 32)"/>'+
+  '<text x="32" y="37" text-anchor="middle" font-size="15" font-family="var(--serif)" fill="var(--ink)">'+Math.round(pct*100)+'%</text></svg>';
+}
+function renderToday(){
+  const k=shiftKey(todayKey(),viewOffset);
+  const d=day(k);const t=targets(k);const set=daySet(k);
+  const sc=dayScore(k);const st=streakInfo();
+  const isToday=viewOffset===0;
+  let html='';
+  html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'+
+   '<div><div class="serif" style="font-size:26px">'+(isToday?greet()+', '+esc(S.profile.name):'Editing yesterday')+'</div>'+
+   '<div class="muted">'+fmtKey(k)+'</div></div>'+
+   '<button class="tiny" style="text-decoration:underline;padding:6px 0" onclick="flipDay()">'+(isToday?'edit yesterday':'back to today')+'</button></div>';
+  const tp=tripPoints(),tt=S.trip.target||100;
+  html+='<div class="row" style="gap:8px;margin:8px 0 12px;flex-wrap:wrap">'+
+   '<span class="pill pine">'+st.cur+'-day streak'+(st.bends?' (bent, not broken)':'')+'</span>'+
+   (S.comebacks?'<span class="pill sky">'+S.comebacks+' comeback'+(S.comebacks>1?'s':'')+'</span>':'')+
+   (sc>=1?'<span class="pill gold">perfect day</span>':'')+
+   '<span class="pill gold num">'+(tp>=tt?'trip earned!':'next Ritz: '+Math.round(tp/tt*100)+'%')+'</span></div>';
+  if(tp>=tt)html+='<div class="banner gold"><b>The meter is full.</b> You’ve earned the next Ritz weekend — head to Progress, pick the property, and get it booked before life gets busy.</div>';
+  if(d.mode==='curveball'){
+    html+='<div class="banner sky"><b>Curveball mode.</b> The bar is on the floor on purpose: '+t.water+' glasses of water, '+t.steps.toLocaleString()+' steps, one small thing. Do those and today is a full win. Streak is protected.'+
+    '<div style="margin-top:10px" class="row"><button class="btn small sky" onclick="setMode(\''+k+'\',\'ramp\')">Feeling steadier — ramp up</button>'+
+    '<button class="btn small ghost" onclick="setMode(\''+k+'\',\'full\')">Full day</button></div></div>';
+  }else if(d.mode==='ramp'){
+    html+='<div class="banner sky"><b>Ramp-back day.</b> About 75% of normal — re-entry is a skill and you’re doing it.'+
+    '<div style="margin-top:10px"><button class="btn small ghost" onclick="setMode(\''+k+'\',\'full\')">Go full</button></div></div>';
+  }else{
+    const yk=shiftKey(k,-1);
+    if(S.days[yk]&&S.days[yk].mode==='curveball'){
+      html+='<div class="banner sky">Yesterday was a curveball day. Want a gentler ramp-back today?'+
+      '<div style="margin-top:10px"><button class="btn small sky" onclick="setMode(\''+k+'\',\'ramp\')">Yes, ramp me back</button></div></div>';
+    }
+  }
+  html+='<div class="ringwrap">'+ring(sc)+'<div class="grow">'+
+   '<div style="font-size:14px">'+set.filter(h=>habitDone(k,h)).length+' of '+set.length+' for '+(isToday?'today':'yesterday')+'</div>'+
+   paceHint(k)+
+   (d.mode==='full'&&isToday?'<button class="btn small sky" onclick="curveball()">Life threw a curveball</button>':'')+
+   '</div></div>';
+  const parts={};set.forEach(h=>{(parts[h.part]=parts[h.part]||[]).push(h);});
+  for(const p of ['morning','work','body','home','evening']){
+    if(!parts[p])continue;
+    html+='<div class="card"><h3>'+PARTS[p]+'</h3>';
+    for(const h of parts[p]){
+      if(h.id==='water'){
+        const dn=habitDone(k,h);
+        html+='<div class="habit '+(dn?'done':'')+'"><div class="grow"><span class="lbl">Water — <b class="num">'+d.water+'</b> / '+t.water+' glasses'+(dn?' ✓':'')+'</span>'+
+        '<div class="dots" style="margin-top:6px">'+Array.from({length:t.water},(_,i)=>'<span class="dot '+(i<d.water?'on':'')+'"></span>').join('')+'</div></div>'+
+        '<div class="counter"><button class="cbtn" aria-label="minus one glass" onclick="water(\''+k+'\',-1)">−</button>'+
+        '<button class="cbtn" aria-label="plus one glass" onclick="water(\''+k+'\',1)">+</button></div></div>';
+      }else if(h.id==='steps'){
+        const dn=habitDone(k,h);
+        html+='<div class="habit '+(dn?'done':'')+'"><div class="grow"><span class="lbl">Steps — <b class="num">'+d.steps.toLocaleString()+'</b> / '+t.steps.toLocaleString()+(dn?' ✓':'')+'</span>'+
+        '<div class="bar" style="margin-top:7px"><div style="width:'+Math.min(100,d.steps/t.steps*100)+'%"></div></div>'+
+        '<div class="row" style="margin-top:8px"><input id="steps_'+k+'" type="number" inputmode="numeric" placeholder="from your phone/watch" style="max-width:170px" value="'+(d.steps||'')+'" onchange="setSteps(\''+k+'\',this.value)">'+
+        '<button class="btn small ghost" onclick="addSteps(\''+k+'\',1000)">+1,000</button></div></div></div>';
+      }else if(h.id==='needle'){
+        const cb=d.mode==='curveball';
+        html+='<div class="habit '+(d.done.needle?'done':'')+'">'+tickBtn(k,'needle')+
+        '<div class="grow"><span class="lbl">'+(cb?'One small thing — anything counts':'Today’s #1 needle-mover')+'</span>'+
+        '<input type="text" style="margin-top:6px" placeholder="'+(cb?'e.g. answered the important email':'the one thing that builds your case for the big role')+'" value="'+esc(d.needleText)+'" onchange="needleText(\''+k+'\',this.value)"></div></div>';
+      }else{
+        const aq=ANSWER_SUB[h.id];const ans=aq?qAnswer(aq):'';
+        const lbl=(LABEL_UP[h.id]&&ans)?LABEL_UP[h.id]:h.label;
+        const sub=ans?(ans.length>80?ans.slice(0,77)+'…':ans):(h.sub||'');
+        html+='<div class="habit '+(d.done[h.id]?'done':'')+'">'+tickBtn(k,h.id)+
+        '<span class="lbl">'+esc(lbl)+(sub?'<span class="sub">'+esc(sub)+'</span>':'')+'</span></div>';
+      }
+    }
+    html+='</div>';
+  }
+  const nq=nextQuest();
+  if(nq&&d.mode==='full'){
+    html+='<div class="card" style="border-color:var(--gold);border-width:1.5px"><h3 style="color:var(--gold-deep)">Next small step · '+nq.p.title+'</h3>'+
+    questCard(nq.p,nq.q)+
+    '<p class="tiny" style="margin-top:10px">One step at a time, on purpose. <button style="text-decoration:underline;color:var(--pine-deep);font-size:12px" onclick="go(\'paths\')">See all paths →</button></p></div>';
+  }
+  html+='<div class="card"><h3>Money moment</h3>'+
+   '<p class="muted" style="margin-bottom:10px">Urge to spend to feel in control? Park it — it’ll wait for you.</p>'+
+   '<button class="btn gold" onclick="urgeModal()">I feel a spending urge</button>'+
+   (S.surfed?'<p class="tiny" style="margin-top:8px">'+S.surfed+' urge'+(S.surfed>1?'s':'')+' surfed so far — that’s real money and real power.</p>':'')+'</div>';
+  app.innerHTML=html;
+  maybeCelebrate(k,sc);
+}
+function tickBtn(k,id){const on=day(k).done[id];
+  return '<button class="tick '+(on?'on':'')+'" role="checkbox" aria-checked="'+(!!on)+'" onclick="toggle(\''+k+'\',\''+id+'\')">'+
+  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M4 13l5 5L20 6"/></svg></button>';}
+window.flipDay=()=>{viewOffset=viewOffset===0?-1:0;render();};
+window.toggle=(k,id)=>{const d=day(k);d.done[id]=!d.done[id];d.touched=true;render();};
+window.water=(k,n)=>{const d=day(k);d.water=Math.max(0,d.water+n);d.touched=true;render();};
+window.setSteps=(k,v)=>{const d=day(k);d.steps=Math.max(0,parseInt(v)||0);d.touched=true;render();};
+window.addSteps=(k,n)=>{const d=day(k);d.steps+=n;d.touched=true;render();};
+window.needleText=(k,v)=>{const d=day(k);d.needleText=v;d.touched=true;save();};
+window.setMode=(k,m)=>{day(k).mode=m;day(k).touched=true;render();};
+window.curveball=()=>{
+  openModal('<div class="serif" style="font-size:24px;margin-bottom:10px">Okay. Curveball mode.</div>'+
+  '<p style="margin-bottom:10px">Sick kids, surprise trip, chaos week — the plan bends so it doesn’t break. For now your whole job is the floor: water, some steps, one small thing.</p>'+
+  '<p class="muted" style="margin-bottom:18px">Your streak is protected. When things settle, the app ramps you back over a day or two — you are never more than one day from back on track.</p>'+
+  '<div class="row"><button class="btn sky grow" onclick="setModeAndClose()">Shrink today</button>'+
+  '<button class="btn ghost grow" onclick="closeModal()">Never mind</button></div>');
+};
+window.setModeAndClose=()=>{day(todayKey()).mode='curveball';day(todayKey()).touched=true;closeModal();render();};
+function maybeCelebrate(k,sc){
+  if(sc>=1&&!S.celebrated[k]&&daySet(k).length>=3){
+    S.celebrated[k]=true;save();
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      const c=document.createElement('div');c.className='confetti';
+      const cols=['#33635C','#C6952E','#5E87AC','#B3564D'];
+      for(let i=0;i<36;i++){const s=document.createElement('i');
+        s.style.left=Math.random()*100+'%';s.style.background=cols[i%4];
+        s.style.animationDelay=(Math.random()*.5)+'s';c.appendChild(s);}
+      document.body.appendChild(c);setTimeout(()=>c.remove(),2400);}
+  }
+}
+/* ---------- paths & quests ---------- */
+const LABEL_UP={ready:'Wore one of your uniforms — feel-good ready',home_food:'Cooked from the rotation',reset:'Ran your 10-minute reset',no_late:'Kitchen closed — ran your ritual',bed:'Lights out on time',move:'Hit your walk slots',kids_am:'Kids ran their chart, out on time',homework:'Homework routine ran',kids_bed:'Kids’ bedtime routine ran',family_time:'Did your connection ritual'};
+const UNLOCK_MSG={ready:'“Wore one of your uniforms” just joined your day — with YOUR uniforms written under it.',home_food:'“Cooked from the rotation” just joined your day. Dinner is a decision you already made.',reset:'“10-minute evening reset” just joined your day — your checklist, not a chore.',move:'“Hit your walk slots” just joined your day. They’re appointments now.',winddown_set:'Your evening unlocked: screens down, reading, and lights out at your bedtime.',no_late_plus:'“Kitchen closed” now runs on your ritual instead of willpower.',kids_am:'“Kids out the door on time” just joined your day — the chart does the nagging now.',homework:'“Homework done in the window” just joined your day. The negotiation is over — the routine decides.',kids_bed:'“Kids in bed on time” just joined your day — and your evenings just got bigger.',family_time:'“Relaxed family time” just joined your day. This is the one they’ll remember.'};
+function nextQuest(){
+  const order=[S.lastPath,...PATHS.map(p=>p.id).filter(x=>x!==S.lastPath)];
+  for(const pid of order){const p=PATHS.find(x=>x.id===pid);
+    const q=p.quests.find(q=>!qDone(q.id));if(q)return{p,q};}
+  return null;}
+function questCard(p,q){
+  let h='<div style="padding:4px 0">'+
+  '<div style="font-size:16px;font-weight:600">'+esc(q.title)+'</div>'+
+  '<p class="tiny" style="margin:4px 0 8px">'+esc(q.why||'')+'</p>'+
+  (q.how?'<p style="font-size:14px;color:var(--muted);margin-bottom:10px">'+esc(q.how)+'</p>':'');
+  if(q.prompt)h+='<div style="background:var(--surface,#FDFCF9);border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px">'+
+   '<div class="tiny" style="margin-bottom:6px">Run this with Claude (fill any [brackets]):</div>'+
+   '<div style="font-size:13px;line-height:1.5;color:var(--ink)">'+esc(q.prompt)+'</div>'+
+   '<button class="btn small ghost" style="margin-top:8px" id="cp_'+q.id+'" onclick="copyPrompt(\''+q.id+'\')">Copy prompt</button></div>';
+  if(q.ask)h+='<label class="fl">'+esc(q.ask)+'</label><textarea id="qa_'+q.id+'" style="min-height:52px" placeholder="save it here — it shows up in your daily list" onchange="saveQA(\''+q.id+'\',this.value)">'+esc(qAnswer(q.id))+'</textarea>';
+  h+='<div style="margin-top:10px"><button class="btn" onclick="finishQuest(\''+p.id+'\',\''+q.id+'\')">Mark done</button></div></div>';
+  return h;
+}
+window.saveQA=(id,v)=>{S.quests.answers[id]=v.trim();save();};
+window.copyPrompt=id=>{const q=questById(id);if(!q)return;
+  const done=()=>{const b=document.getElementById('cp_'+id);if(b)b.textContent='Copied ✓';};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(q.prompt).then(done,done);else done();};
+window.finishQuest=(pid,qid)=>{
+  const el=document.getElementById('qa_'+qid);
+  if(el&&el.value.trim())S.quests.answers[qid]=el.value.trim();
+  const q=questById(qid);
+  if(q&&q.ask&&!(S.quests.answers[qid]))return alert('Save your answer first — it becomes part of your daily list.');
+  S.quests.done[qid]=todayKey();S.lastPath=pid;
+  if(q&&q.unlocks&&UNLOCK_MSG[q.unlocks]){
+    openModal('<div class="serif" style="font-size:24px;margin-bottom:10px">Unlocked.</div>'+
+    '<p style="margin-bottom:16px">'+UNLOCK_MSG[q.unlocks]+'</p>'+
+    '<p class="tiny" style="margin-bottom:16px">This is the ramp: the day only grows when you’ve built the skill underneath it.</p>'+
+    '<button class="btn" onclick="closeModal();render()">Nice</button>');
+  }
+  render();
+};
+function renderPaths(){
+  const total=PATHS.reduce((a,p)=>a+p.quests.length,0);
+  const done=PATHS.reduce((a,p)=>a+p.quests.filter(q=>qDone(q.id)).length,0);
+  let html='<div class="serif" style="font-size:26px;margin-bottom:4px">Paths</div>'+
+  '<p class="muted" style="margin-bottom:6px">Small one-time steps that teach the skill first — then the daily habit unlocks, personalized with your answers.</p>'+
+  '<p class="tiny num" style="margin-bottom:14px">'+done+' of '+total+' steps done · new daily habits appear as you go</p>';
+  for(const p of PATHS){
+    const dn=p.quests.filter(q=>qDone(q.id)).length;
+    let first=true;
+    html+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3 style="margin-bottom:2px">'+p.title+'</h3><span class="tiny num">'+dn+'/'+p.quests.length+'</span></div>'+
+    '<p class="tiny" style="margin-bottom:8px">'+esc(p.tag)+'</p>'+
+    '<div class="bar" style="margin-bottom:12px"><div style="width:'+(dn/p.quests.length*100)+'%;background:'+(dn===p.quests.length?'var(--gold)':'var(--pine)')+'"></div></div>';
+    for(const q of p.quests){
+      if(qDone(q.id)){
+        const a=qAnswer(q.id);
+        html+='<div class="habit done"><div class="tick on"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M4 13l5 5L20 6"/></svg></div>'+
+        '<span class="lbl">'+esc(q.title)+(a?'<span class="sub">'+esc(a.length>90?a.slice(0,87)+'…':a)+'</span>':'')+'</span></div>';
+      }else if(first){first=false;
+        html+='<div style="border-top:1px solid var(--line);padding-top:8px">'+questCard(p,q)+'</div>';
+      }else{
+        html+='<div class="habit" style="opacity:.45"><div class="tick"></div><span class="lbl">'+esc(q.title)+'</span></div>';
+      }
+    }
+    html+='</div>';
+  }
+  app.innerHTML=html;
+}
+/* ---------- urges ---------- */
+window.urgeModal=()=>{
+  openModal('<div class="serif" style="font-size:24px;margin-bottom:10px">Name it to tame it.</div>'+
+  '<p class="muted" style="margin-bottom:12px">What’s the feeling underneath?</p>'+
+  '<div class="seg" id="feel">'+['Stressed','Out of control','Tired','Bored','I deserve it'].map(f=>'<button onclick="pickFeel(this)">'+f+'</button>').join('')+'</div>'+
+  '<label class="fl">What do you want to buy?</label><input type="text" id="urge_what" placeholder="optional">'+
+  '<div style="margin:16px 0;padding:12px;background:var(--pine-soft);border-radius:10px;font-size:14px;color:var(--pine-deep)" class="num">'+moneySnapshotLine()+'</div>'+
+  '<div class="row"><button class="btn gold grow" onclick="parkUrge()">Park it for 24 hours</button>'+
+  '<button class="btn ghost grow" onclick="closeModal()">Just breathing</button></div>');
+};
+let pickedFeel='';
+window.pickFeel=el=>{pickedFeel=el.textContent;el.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));el.classList.add('on');};
+function moneySnapshotLine(){const m=S.money[S.money.length-1];
+  const parts=[];
+  if(m.cc!=null)parts.push('Card: $'+m.cc.toLocaleString()+' → $0');
+  if(m.sav!=null)parts.push('Savings: $'+m.sav.toLocaleString()+' → $'+(S.profile.savGoal||30000).toLocaleString());
+  if(S.profile.kitGoal)parts.push('Kitchen: $'+(m.kit||0).toLocaleString()+' / $'+S.profile.kitGoal.toLocaleString());
+  return 'The real control: '+parts.join(' · ');}
+window.parkUrge=()=>{
+  const what=document.getElementById('urge_what').value;
+  S.parked.push({d:todayKey(),what:what||'(unnamed)',feel:pickedFeel});pickedFeel='';
+  closeModal();
+  openModal('<div class="serif" style="font-size:24px;margin-bottom:10px">Parked.</div>'+
+  '<p style="margin-bottom:16px">If you still want it tomorrow, it’s yours to decide with a calm brain. It’s waiting on the Progress tab. That was the strong move.</p>'+
+  '<button class="btn" onclick="closeModal()">Back to my day</button>');
+};
+window.resolveUrge=(i,kept)=>{
+  if(!kept)S.surfed++;
+  S.parked.splice(i,1);render();
+};
+/* ---------- progress ---------- */
+function renderProgress(){
+  const st=streakInfo();
+  let html='<div class="serif" style="font-size:26px;margin-bottom:12px">Progress</div>';
+  html+='<div class="statgrid" style="margin-bottom:14px">'+
+   stat(st.cur,'day streak')+stat(st.best,'best streak')+stat(S.comebacks,'comebacks')+
+   stat(perfectDays(),'perfect days')+stat(greenDays(30),'green days / 30')+stat(S.surfed,'urges surfed')+'</div>';
+  html+='<div class="card"><h3>Weight — the trend is the truth</h3>'+weightChart()+weighDelta()+'</div>';
+  html+='<div class="card"><h3>Steps — last 14 days</h3>'+stepsChart()+'</div>';
+  html+='<div class="card"><h3>The fronts — last 7 days</h3>'+frontsCard()+'</div>';
+  html+='<div class="card"><h3>Showing up — last 10 weeks</h3>'+heatmap()+
+   '<p class="tiny" style="margin-top:8px">Deeper green = fuller day · blue = curveball day (protected) · empty = no log</p></div>';
+  html+='<div class="card"><h3>Money</h3>'+moneyBars()+'</div>';
+  html+='<div class="card" style="border-color:var(--gold);border-width:1.5px"><h3 style="color:var(--gold-deep)">The Ritz list — your reward engine</h3>'+ritzCard()+'</div>';
+  if(S.parked.length){
+    html+='<div class="card"><h3>Parked purchases</h3>'+S.parked.map((u,i)=>
+     '<div class="winitem"><b>'+esc(u.what)+'</b> <span class="tiny">'+(u.feel?'felt: '+esc(u.feel.toLowerCase())+' · ':'')+fmtKey(u.d)+'</span>'+
+     '<div class="row" style="margin-top:8px"><button class="btn small ghost" onclick="resolveUrge('+i+',false)">Let it go</button>'+
+     '<button class="btn small gold" onclick="resolveUrge('+i+',true)">Bought it — data, not a verdict</button></div></div>').join('')+'</div>';
+  }
+  app.innerHTML=html;
+}
+function stat(v,k){return '<div class="stat"><div class="v num">'+v+'</div><div class="k">'+k+'</div></div>';}
+const FRONTS=[
+ ['Career',['needle']],
+ ['Body',['water','steps','move','no_late']],
+ ['Look & feel',['ready']],
+ ['Family routines',['kids_am','homework','kids_bed','family_time']],
+ ['Home running',['home_food','reset','up_early']],
+ ['Your evenings',['screens','read','bed']]
+];
+function frontsCard(){
+  const t=todayKey();let out='';
+  for(const[label,ids]of FRONTS){
+    let num=0,den=0;
+    for(let i=0;i<7;i++){const k=shiftKey(t,-i);if(!touched(k))continue;
+      for(const h of daySet(k)){if(ids.includes(h.id)){den++;if(habitDone(k,h))num++;}}}
+    if(den===0){
+      const lockedQ=ids.map(id=>LOCKS[id]).filter(q=>q&&!qDone(q));
+      out+='<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px"><span>'+label+'</span>'+
+      '<span class="tiny">'+(lockedQ.length?'unlocks on the Paths tab':'no logs yet')+'</span></div>'+
+      '<div class="bar"><div style="width:0%"></div></div></div>';
+    }else{
+      const f=num/den;
+      out+='<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px"><span>'+label+'</span>'+
+      '<span class="muted num">'+num+'/'+den+' · '+Math.round(f*100)+'%</span></div>'+
+      '<div class="bar"><div style="width:'+(f*100)+'%;background:'+(f>=0.85?'var(--gold)':'var(--pine)')+'"></div></div></div>';
+    }
+  }
+  return out+'<p class="tiny">Only counts days you logged, and only habits that were unlocked and asked of you that day — fair scoring, always.</p>';
+}
+function weighDelta(){
+  if(S.weighins.length<2)return '<p class="tiny" style="margin-top:8px">Weigh in weekly (Week tab) — two points make a trend.</p>';
+  const a=S.weighins[0].lbs,b=S.weighins[S.weighins.length-1].lbs;
+  const d=(a-b);const goal=S.profile.weightGoal||a-25;
+  return '<p class="muted num" style="margin-top:8px">'+(d>=0?'Down '+d.toFixed(1):'Up '+Math.abs(d).toFixed(1))+' lbs since day one · '+Math.max(0,b-goal).toFixed(1)+' to go</p>';
+}
+function weightChart(){
+  const W=420,H=150,P=28;
+  const pts=S.weighins.slice().sort((x,y)=>x.d<y.d?-1:1);
+  if(!pts.length)return '<p class="tiny">No weigh-ins yet.</p>';
+  const start=S.profile.weightStart||pts[0].lbs;
+  const goal=S.profile.weightGoal||start-25;
+  let lo=Math.min(goal,...pts.map(p=>p.lbs))-3,hi=Math.max(start,...pts.map(p=>p.lbs))+3;
+  const x=i=>pts.length===1?W/2:P+i*(W-2*P)/(pts.length-1);
+  const y=v=>H-P-(v-lo)*(H-2*P)/(hi-lo);
+  let svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="weight trend chart">';
+  svg+='<line x1="'+P+'" x2="'+(W-P)+'" y1="'+y(goal)+'" y2="'+y(goal)+'" stroke="var(--gold)" stroke-dasharray="5 4" stroke-width="1.5"/>';
+  svg+='<text x="'+(W-P)+'" y="'+(y(goal)-5)+'" text-anchor="end" font-size="11" fill="var(--gold-deep)">goal '+goal+'</text>';
+  if(pts.length>1)svg+='<path d="M'+pts.map((p,i)=>x(i)+' '+y(p.lbs)).join(' L ')+'" fill="none" stroke="var(--pine)" stroke-width="2.5" stroke-linejoin="round"/>';
+  pts.forEach((p,i)=>{svg+='<circle cx="'+x(i)+'" cy="'+y(p.lbs)+'" r="'+(i===pts.length-1?5:3.5)+'" fill="'+(i===pts.length-1?'var(--gold)':'var(--pine)')+'"/>';});
+  const last=pts[pts.length-1];
+  svg+='<text x="'+x(pts.length-1)+'" y="'+(y(last.lbs)-10)+'" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)" class="num">'+last.lbs+'</text>';
+  svg+='</svg>';return svg;
+}
+function stepsChart(){
+  const W=420,H=140,P=24,n=14,t=todayKey();
+  const tgt=S.profile.stepsTarget;
+  const vals=[];for(let i=n-1;i>=0;i--){const k=shiftKey(t,-i);vals.push({k,v:S.days[k]?S.days[k].steps:0});}
+  const hi=Math.max(tgt*1.2,...vals.map(v=>v.v),1000);
+  const bw=(W-2*P)/n-4;
+  let svg='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="steps last 14 days">';
+  const ty=H-16-(tgt/hi)*(H-32);
+  svg+='<line x1="'+P+'" x2="'+(W-P)+'" y1="'+ty+'" y2="'+ty+'" stroke="var(--gold)" stroke-dasharray="5 4" stroke-width="1.5"/>';
+  svg+='<text x="'+(W-P)+'" y="'+(ty-4)+'" text-anchor="end" font-size="11" fill="var(--gold-deep)" class="num">target '+tgt.toLocaleString()+'</text>';
+  vals.forEach((v,i)=>{const h=(v.v/hi)*(H-32);
+    svg+='<rect x="'+(P+i*((W-2*P)/n)+2)+'" y="'+(H-16-h)+'" width="'+bw+'" height="'+Math.max(h,1.5)+'" rx="3" fill="'+(v.v>=tgt?'var(--pine)':'var(--line)')+'"/>';});
+  const week=vals.slice(-7);const avg=Math.round(week.reduce((a,b)=>a+b.v,0)/7);
+  svg+='</svg><p class="muted num" style="margin-top:6px">7-day average: '+avg.toLocaleString()+' steps</p>';
+  return svg;
+}
+function heatmap(){
+  const t=todayKey();const cells=[];
+  const todayDow=(()=>{const p=t.split('-');return new Date(+p[0],+p[1]-1,+p[2]).getDay();})();
+  let svg='<svg viewBox="0 0 360 130" width="100%" role="img" aria-label="habit heatmap">';
+  for(let i=0;i<70;i++){
+    const k=shiftKey(t,-(69-i));
+    const p=k.split('-');const dow=new Date(+p[0],+p[1]-1,+p[2]).getDay();
+    const week=Math.floor((i+(6-todayDow))/7);
+    const d=S.days[k];let fill='var(--line)';let op=0.45;
+    if(d&&touched(k)){
+      if(d.mode==='curveball'){fill='var(--sky)';op=0.9;}
+      else{const s=dayScore(k);fill='var(--pine)';op=s>=1?1:s>=0.7?0.75:s>=0.4?0.5:0.28;}
+    }
+    if(k>t)continue;
+    svg+='<rect x="'+(week*32)+'" y="'+(dow*18)+'" width="27" height="14" rx="3.5" fill="'+fill+'" opacity="'+op+'"/>';
+  }
+  svg+='</svg>';return '<div class="chartwrap">'+svg+'</div>';
+}
+function moneyBars(){
+  const m=S.money[S.money.length-1];const p=S.profile;
+  let html='';
+  if(p.ccStart){const paid=Math.max(0,p.ccStart-(m.cc||0));const f=Math.min(1,paid/p.ccStart);
+    html+=barBlock('Credit card paid off','$'+paid.toLocaleString()+' of $'+p.ccStart.toLocaleString(),f,(m.cc||0)===0?'var(--gold)':'var(--pine)');}
+  if(p.savGoal){const f=Math.min(1,Math.max(0,((m.sav||0)-p.savStart)/(p.savGoal-p.savStart)));
+    html+=barBlock('Savings $'+(p.savStart/1000)+'k → $'+(p.savGoal/1000)+'k','$'+(m.sav||0).toLocaleString()+' now',f,'var(--pine)');}
+  if(p.kitGoal){const f=Math.min(1,(m.kit||0)/p.kitGoal);
+    html+=barBlock('Kitchen renovation fund','$'+(m.kit||0).toLocaleString()+' of $'+p.kitGoal.toLocaleString(),f,'var(--pine)');}
+  return html||'<p class="tiny">Add your money numbers in Plan.</p>';
+}
+function barBlock(title,sub,f,color){
+  return '<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px"><span>'+title+'</span><span class="muted num">'+sub+'</span></div>'+
+  '<div class="bar"><div style="width:'+(f*100)+'%;background:'+color+'"></div></div></div>';
+}
+/* ---------- ritz reward engine ---------- */
+function tripPoints(){
+  const start=S.trip.start;let pts=0;
+  for(const k of Object.keys(S.days)){
+    if(k<start||!touched(k))continue;
+    const s=dayScore(k);const full=S.days[k].mode==='full';
+    if(s>=1&&full)pts+=5;else if(s>=0.7)pts+=3;
+  }
+  for(const qid of Object.keys(S.quests.done)){if(S.quests.done[qid]>=start)pts+=5;}
+  for(const w of S.wins){if(w.d>=start)pts+=2;}
+  for(const w of S.weighins){if(w.d>=start)pts+=3;}
+  S.money.forEach((m,i)=>{if(i>0&&m.d>=start)pts+=3;});
+  return pts;
+}
+let ritzEdit=false;
+function ritzCard(){
+  const pts=tripPoints();const tgt=S.trip.target||100;
+  const stayed=S.ritz.filter(r=>r.st===2).length;
+  const earned=pts>=tgt;
+  let html='<p class="tiny" style="margin-bottom:10px">Fill the meter with real weeks of showing up → earn the next luxury weekend. '+stayed+' of '+S.ritz.length+' Ritz-Carltons collected.</p>';
+  html+='<div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:5px"><span>'+(earned?'TRIP EARNED':'Next trip')+'</span><span class="muted num">'+pts+' / '+tgt+' pts</span></div>'+
+  '<div class="bar" style="height:14px;border-radius:7px"><div style="width:'+Math.min(100,pts/tgt*100)+'%;background:'+(earned?'var(--gold)':'var(--pine)')+'"></div></div>';
+  if(earned){
+    const options=S.ritz.filter(r=>r.st===0);
+    html+='<div style="margin-top:12px;padding:12px;background:var(--gold-soft);border-radius:10px">'+
+    '<div style="font-weight:600;color:var(--gold-deep);margin-bottom:8px">You earned this one. Pick it and tell your husband to work his magic.</div>'+
+    '<select id="trip_pick" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);font-size:15px;background:#FDFCF9">'+
+    options.map(r=>'<option>'+esc(r.name)+'</option>').join('')+'</select>'+
+    '<button class="btn gold" style="margin-top:10px" onclick="bookTrip()">Booked it — start the next meter</button></div>';
+  }else{
+    html+='<p class="tiny" style="margin:8px 0 0">Earn points: green day 3 · perfect day 5 · path step 5 · weigh-in 3 · money check-in 3 · win logged 2. Comebacks keep the meter alive — quitting is the only thing that doesn’t pay.</p>';
+  }
+  if(S.trip.history.length)html+='<p class="tiny" style="margin-top:10px">Earned so far: '+S.trip.history.map(h=>esc(h.name)).join(' · ')+'</p>';
+  html+='<div style="margin-top:14px;border-top:1px solid var(--line);padding-top:10px">'+
+  '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:13px;color:var(--muted)">The collection — tap to cycle: next → booked → stayed</span>'+
+  '<button class="tiny" style="text-decoration:underline" onclick="ritzEditToggle()">'+(ritzEdit?'done':'edit list')+'</button></div>'+
+  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px">'+
+  S.ritz.map((r,i)=>{
+    const c=r.st===2?'var(--gold)':r.st===1?'var(--sky)':'var(--line)';
+    return '<div class="row" style="gap:6px"><button style="flex:1;display:flex;align-items:center;gap:7px;padding:5px 2px;text-align:left;font-size:12.5px;'+(r.st===2?'color:var(--gold-deep);font-weight:600':r.st===1?'color:var(--sky-deep)':'color:var(--muted)')+'" onclick="cycleRitz('+i+')">'+
+    '<span style="width:9px;height:9px;min-width:9px;border-radius:50%;background:'+c+'"></span>'+esc(r.name)+(r.st===1?' · booked':'')+(r.st===2?' ★':'')+'</button>'+
+    (ritzEdit?'<button aria-label="remove" style="color:var(--rose);font-size:14px" onclick="removeRitz('+i+')">×</button>':'')+'</div>';
+  }).join('')+'</div>';
+  if(ritzEdit)html+='<div class="row" style="margin-top:10px"><input type="text" id="ritz_new" placeholder="add a property"><button class="btn small ghost" onclick="addRitz()">Add</button></div>'+
+  '<p class="tiny" style="margin-top:6px">Hotel lists change — this one’s yours to curate.</p>';
+  return html;
+}
+window.ritzEditToggle=()=>{ritzEdit=!ritzEdit;render();};
+window.cycleRitz=i=>{S.ritz[i].st=(S.ritz[i].st+1)%3;render();};
+window.removeRitz=i=>{S.ritz.splice(i,1);render();};
+window.addRitz=()=>{const el=document.getElementById('ritz_new');if(el&&el.value.trim()){S.ritz.push({name:el.value.trim(),st:0});render();}};
+window.bookTrip=()=>{
+  const sel=document.getElementById('trip_pick');const name=sel?sel.value:'';
+  const r=S.ritz.find(x=>x.name===name);if(r)r.st=1;
+  S.trip.history.push({d:todayKey(),name:name||'(trip)'});
+  S.trip.start=todayKey();
+  openModal('<div class="serif" style="font-size:26px;margin-bottom:10px">Earned, not indulged.</div>'+
+  '<p style="margin-bottom:16px">'+esc(name)+' is yours because you showed up for weeks. Remember that feeling when you check in — then come home and start filling the next meter.</p>'+
+  '<button class="btn gold" onclick="closeModal();render()">Can’t wait</button>');
+};
+/* ---------- week ---------- */
+function renderWeek(){
+  let html='<div class="serif" style="font-size:26px;margin-bottom:4px">Weekly ritual</div>'+
+  '<p class="muted" style="margin-bottom:14px">Ten minutes, once a week — Sunday night or Monday morning.</p>';
+  html+='<div class="card"><h3>Weigh-in</h3>'+
+   '<div class="row"><input id="wk_w" type="number" inputmode="decimal" placeholder="lbs" style="max-width:130px">'+
+   '<button class="btn" onclick="addWeigh()">Log</button></div>'+
+   (S.weighins.length?'<p class="tiny" style="margin-top:8px">Last: '+S.weighins[S.weighins.length-1].lbs+' lbs on '+fmtKey(S.weighins[S.weighins.length-1].d)+'</p>':'')+'</div>';
+  const m=S.money[S.money.length-1];
+  html+='<div class="card"><h3>Money check-in</h3>'+
+   '<label class="fl">Credit card balance ($)</label><input id="wk_cc" type="number" inputmode="numeric" value="'+(m.cc??'')+'">'+
+   '<label class="fl">Savings ($)</label><input id="wk_sv" type="number" inputmode="numeric" value="'+(m.sav??'')+'">'+
+   '<label class="fl">Kitchen fund ($)</label><input id="wk_k" type="number" inputmode="numeric" value="'+(m.kit??'')+'">'+
+   '<div style="margin-top:12px"><button class="btn" onclick="addMoney()">Save snapshot</button></div></div>';
+  html+='<div class="card"><h3>Wins log — your promotion evidence file</h3>'+
+   '<p class="tiny" style="margin-bottom:8px">1–3 needle-mover wins or visibility moments this week. Future-you reads this in the promotion conversation.</p>'+
+   '<div class="row"><input id="wk_win" type="text" placeholder="e.g. presented growth plan to CEO" onkeydown="if(event.key===\'Enter\')addWin()"><button class="btn" onclick="addWin()">Add</button></div>'+
+   (S.wins.length?'<div style="margin-top:10px">'+S.wins.slice().reverse().slice(0,20).map(w=>'<div class="winitem">'+esc(w.text)+' <span class="tiny">'+fmtKey(w.d)+'</span></div>').join('')+'</div>'+
+   '<button class="btn small ghost" style="margin-top:10px" onclick="copyWins()">Copy all '+S.wins.length+' wins</button>':'')+'</div>';
+  html+='<div class="card"><h3>This week’s adjustments</h3>'+adjustments()+'</div>';
+  html+='<div class="card"><h3>Week at a glance</h3><p class="muted num">'+greenDays(7)+' of the last 7 days were green (70%+). '+weekLine()+'</p></div>';
+  app.innerHTML=html;
+}
+function weekLine(){
+  const g=greenDays(7);
+  if(g>=6)return 'That is a thriving week. Take a second to actually feel that.';
+  if(g>=4)return 'Solid, real momentum — protect the evenings and this compounds.';
+  if(g>=2)return 'A rebuilding week. The comeback is the skill — keep the floor low and show up.';
+  return 'Rough week — that’s information, not a verdict. Consider a curveball day tomorrow to re-enter gently.';
+}
+function adjustments(){
+  const t=todayKey();const n=7;let logged=0;
+  const rates={};
+  activeHabits().forEach(h=>rates[h.id]=0);
+  for(let i=1;i<=n;i++){const k=shiftKey(t,-i);if(!touched(k))continue;logged++;
+    daySet(k).forEach(h=>{if(habitDone(k,h))rates[h.id]=(rates[h.id]||0)+1;});}
+  if(logged<3)return '<p class="tiny">Log a few more days and the app will start tuning targets to how you’re actually doing — shrinking what’s too big, stepping up what’s easy.</p>';
+  let out='';
+  const week=[];for(let i=1;i<=7;i++){const k=shiftKey(t,-i);week.push(S.days[k]?S.days[k].steps:0);}
+  const avg=Math.round(week.reduce((a,b)=>a+b,0)/7);
+  const tgt=S.profile.stepsTarget;
+  if(avg>=tgt&&tgt<10000)out+=adjRow('Steps target '+tgt.toLocaleString()+' → '+Math.min(10000,tgt+500).toLocaleString(),'You’re clearing it — small step up.','stepsUp()');
+  else if(avg<tgt*0.55&&tgt>4000)out+=adjRow('Steps target '+tgt.toLocaleString()+' → '+Math.max(4000,Math.round(avg*1.15/500)*500).toLocaleString(),'Meet yourself where you are, then climb.','stepsDown('+avg+')');
+  for(const h of activeHabits()){
+    if(h.special)continue;
+    const r=(rates[h.id]||0)/logged;
+    if(r<0.35)out+=adjRow('Park “'+h.label+'” for 2 weeks','Fewer things, done — beats many things, missed. It comes back automatically in your Plan tab whenever you want.','parkHabit(\''+h.id+'\')');
+  }
+  return out||'<p class="muted">Targets look right — clearing most, stretched by some. No changes this week.</p>';
+}
+function adjRow(title,why,fn){
+  return '<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div style="font-size:14px;font-weight:600">'+title+'</div>'+
+  '<div class="tiny" style="margin:3px 0 8px">'+why+'</div><button class="btn small ghost" onclick="'+fn+'">Apply</button></div>';
+}
+window.stepsUp=()=>{S.profile.stepsTarget=Math.min(10000,S.profile.stepsTarget+500);render();};
+window.stepsDown=avg=>{S.profile.stepsTarget=Math.max(4000,Math.round(avg*1.15/500)*500);render();};
+window.parkHabit=id=>{S.disabled[id]=true;render();};
+window.addWeigh=()=>{const v=parseFloat(document.getElementById('wk_w').value);if(isNaN(v))return;
+  S.weighins.push({d:todayKey(),lbs:v});render();};
+window.addMoney=()=>{const g=id=>{const v=parseFloat(document.getElementById(id).value);return isNaN(v)?null:v;};
+  S.money.push({d:todayKey(),cc:g('wk_cc'),sav:g('wk_sv'),kit:g('wk_k')});render();};
+window.addWin=()=>{const el=document.getElementById('wk_win');if(!el.value.trim())return;
+  S.wins.push({d:todayKey(),text:el.value.trim()});el.value='';render();};
+window.copyWins=()=>{const txt=S.wins.map(w=>w.d+' — '+w.text).join('\n');
+  navigator.clipboard&&navigator.clipboard.writeText(txt);};
+/* ---------- plan ---------- */
+function renderPlan(){
+  const p=S.profile;
+  let html='<div class="serif" style="font-size:26px;margin-bottom:12px">The plan</div>';
+  html+='<div class="card" style="background:var(--pine-soft);border-color:var(--pine-soft)"><h3 style="color:var(--pine-deep)">Why this matters</h3>'+
+   (p.why?'<p class="serif" style="font-size:17px;line-height:1.6;color:var(--pine-deep);margin-bottom:8px">'+esc(p.why)+'</p>':'')+
+   '<textarea style="background:#fff" placeholder="Why does this year matter? Write it in your own words — it lives only on this device." onchange="setPText(\'why\',this.value)">'+esc(p.why)+'</textarea></div>';
+  html+='<div class="card"><h3>The Tuesday you’re building</h3>'+
+   '<textarea placeholder="Describe an ordinary day one year from now, if everything goes right." onchange="setPText(\'vision\',this.value)">'+esc(p.vision)+'</textarea></div>';
+  html+='<div class="card"><h3>The five fronts</h3>'+
+   frontRow('Career','Make the interim role permanent within 2 quarters','Weekly wins log is your evidence file')+
+   frontRow('Body','Down 25 lbs — feeling good in your own skin','Weekly weigh-in + daily behaviors do the work')+
+   frontRow('Family','Kids in good routines — mornings, homework, bedtime','Their charts and routines carry it, not your nagging')+
+   frontRow('Home','A household that runs on rails','Evening reset + dinner rotation = calm mornings')+
+   frontRow('Money','Card to $0 · savings to $'+((p.savGoal||30000)/1000)+'k · kitchen fund','Weekly check-in + parked urges')+'</div>';
+  html+='<div class="card"><h3>Targets</h3>'+
+   '<label class="fl">Daily water (glasses)</label><input type="number" inputmode="numeric" value="'+p.waterTarget+'" onchange="setP(\'waterTarget\',this.value)">'+
+   '<label class="fl">Daily steps target</label><input type="number" inputmode="numeric" value="'+p.stepsTarget+'" onchange="setP(\'stepsTarget\',this.value)">'+
+   '<label class="fl">Goal weight (lbs)</label><input type="number" inputmode="decimal" value="'+(p.weightGoal||'')+'" onchange="setP(\'weightGoal\',this.value)">'+
+   '<label class="fl">Savings goal ($)</label><input type="number" inputmode="numeric" value="'+(p.savGoal||'')+'" onchange="setP(\'savGoal\',this.value)">'+
+   '<label class="fl">Kitchen goal ($)</label><input type="number" inputmode="numeric" value="'+(p.kitGoal||'')+'" onchange="setP(\'kitGoal\',this.value)">'+
+   '<label class="fl">Trip meter — points to earn the next Ritz</label><input type="number" inputmode="numeric" value="'+(S.trip.target||100)+'" onchange="setTripTarget(this.value)"></div>';
+  html+='<div class="card"><h3>Habits</h3><p class="tiny" style="margin-bottom:8px">Locked habits join your day when you finish the path step that teaches them. Parked habits sit out of your day and score — nothing is deleted.</p>'+
+   HABITS.map(h=>{
+    if(!unlocked(h.id)){const q=questById(LOCKS[h.id]);
+      return '<div class="habit"><span class="lbl" style="color:var(--faint)">'+h.label+'<span class="sub">unlocks with “'+esc(q?q.title:'')+'” on the Paths tab</span></span><span class="pill sky">locked</span></div>';}
+    return '<div class="habit"><span class="lbl" style="'+(S.disabled[h.id]?'color:var(--faint)':'')+'">'+h.label+'</span>'+
+    '<button class="btn small '+(S.disabled[h.id]?'ghost':'gold')+'" onclick="toggleHabit(\''+h.id+'\')">'+(S.disabled[h.id]?'Bring back':'Park')+'</button></div>';}).join('')+'</div>';
+  html+='<div class="card"><h3>Nudges while the app is open</h3>'+
+   '<p class="tiny" style="margin-bottom:8px">If this tab is open on your computer during the workday, it can send a gentle notification when water or steps fall behind pace. (For phone pushes, use your scheduled Claude check-ins.)</p>'+
+   '<button class="btn ghost" onclick="enableNudges()">'+(window._nudges?'Nudges on ✓':'Enable nudges')+'</button></div>';
+  html+='<div class="card"><h3>Your data</h3>'+
+   '<p class="tiny" style="margin-bottom:10px">Everything lives on this device only. Back it up now and then.</p>'+
+   '<div class="row"><button class="btn ghost" onclick="exportData()">Export backup</button>'+
+   '<label class="btn ghost" style="cursor:pointer">Import<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label></div>'+
+   '<div style="margin-top:14px"><button class="tiny" style="color:var(--rose);text-decoration:underline" onclick="resetAll()">Erase everything and start over</button></div></div>';
+  app.innerHTML=html;
+}
+function frontRow(t,goal,how){return '<div style="padding:10px 0;border-bottom:1px solid var(--line)">'+
+ '<div style="font-size:14px"><b>'+t+'</b> — '+goal+'</div><div class="tiny" style="margin-top:2px">'+how+'</div></div>';}
+window.setP=(k,v)=>{const n=parseFloat(v);S.profile[k]=isNaN(n)?null:n;save();};
+window.setPText=(k,v)=>{S.profile[k]=v.trim();save();};
+window.setTripTarget=v=>{const n=parseInt(v);if(!isNaN(n)&&n>=20)S.trip.target=n;save();};
+window.toggleHabit=id=>{S.disabled[id]=!S.disabled[id];render();};
+window.exportData=()=>{
+  const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='thrive-backup-'+todayKey()+'.json';a.click();URL.revokeObjectURL(a.href);};
+window.importData=el=>{const f=el.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(d&&d.profile){S=d;save();render();}else alert('That file doesn’t look like a Thrive backup.');}catch(e){alert('Couldn’t read that file.');}};
+  r.readAsText(f);};
+window.resetAll=()=>{if(confirm('Erase all Thrive data on this device? Export a backup first if you might want it.')){localStorage.removeItem(KEY);S=null;render();}};
+/* ---------- nudges (while open) ---------- */
+window._nudges=false;let lastNudge=0;
+window.enableNudges=()=>{
+  if(!('Notification' in window))return alert('This browser doesn’t support notifications.');
+  Notification.requestPermission().then(p=>{if(p==='granted'){window._nudges=true;render();}});
+};
+setInterval(()=>{
+  if(!window._nudges||!S)return;
+  const h=new Date().getHours();if(h<9||h>=21)return;
+  if(Date.now()-lastNudge<2*3600*1000)return;
+  const k=todayKey();const d=day(k);const t=targets(k);
+  const frac=Math.min(1,(h-8)/13);
+  const behind=[];
+  if(d.water<Math.round(t.water*frac)-1)behind.push('a glass of water');
+  if(d.steps<Math.round(t.steps*frac)-1500)behind.push('a 10-minute walk');
+  if(behind.length){lastNudge=Date.now();
+    new Notification('Thrive — tiny course-correct',{body:'Hyperfocus check: '+behind.join(' and ')+' would put you right back on pace. 2 minutes, then back to it.'});}
+},10*60*1000);
+/* ---------- modal ---------- */
+function openModal(inner){modalroot.innerHTML='<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal" role="dialog" aria-modal="true">'+inner+'</div></div>';}
+window.closeModal=()=>{modalroot.innerHTML='';save();};
+/* ---------- go ---------- */
+render();
+</script>
